@@ -1,98 +1,161 @@
-import { Image } from 'expo-image';
-import { Platform, StyleSheet } from 'react-native';
-
-import { HelloWave } from '@/components/hello-wave';
-import ParallaxScrollView from '@/components/parallax-scroll-view';
-import { ThemedText } from '@/components/themed-text';
-import { ThemedView } from '@/components/themed-view';
-import { Link } from 'expo-router';
+import { useState } from "react";
+import { Image, Platform, SafeAreaView, ScrollView, StatusBar, StyleSheet, Text, View } from "react-native";
+import BurgerBanner from "../../components/BurgerBanner";
+import CategoryCard from "../../components/CategoryCard";
+import Header from "../../components/Header";
+import SearchBar from "../../components/SearchBar";
 
 export default function HomeScreen() {
-  return (
-    <ParallaxScrollView
-      headerBackgroundColor={{ light: '#A1CEDC', dark: '#1D3D47' }}
-      headerImage={
-        <Image
-          source={require('@/assets/images/partial-react-logo.png')}
-          style={styles.reactLogo}
-        />
-      }>
-      <ThemedView style={styles.titleContainer}>
-        <ThemedText type="title">Welcome!</ThemedText>
-        <HelloWave />
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 1: Try it</ThemedText>
-        <ThemedText>
-          Edit <ThemedText type="defaultSemiBold">app/(tabs)/index.tsx</ThemedText> to see changes.
-          Press{' '}
-          <ThemedText type="defaultSemiBold">
-            {Platform.select({
-              ios: 'cmd + d',
-              android: 'cmd + m',
-              web: 'F12',
-            })}
-          </ThemedText>{' '}
-          to open developer tools.
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <Link href="/modal">
-          <Link.Trigger>
-            <ThemedText type="subtitle">Step 2: Explore</ThemedText>
-          </Link.Trigger>
-          <Link.Preview />
-          <Link.Menu>
-            <Link.MenuAction title="Action" icon="cube" onPress={() => alert('Action pressed')} />
-            <Link.MenuAction
-              title="Share"
-              icon="square.and.arrow.up"
-              onPress={() => alert('Share pressed')}
-            />
-            <Link.Menu title="More" icon="ellipsis">
-              <Link.MenuAction
-                title="Delete"
-                icon="trash"
-                destructive
-                onPress={() => alert('Delete pressed')}
-              />
-            </Link.Menu>
-          </Link.Menu>
-        </Link>
+  const [cart, setCart] = useState<any[]>([]);
+  const [selectedCategoryId, setSelectedCategoryId] = useState<number>(1);
 
-        <ThemedText>
-          {`Tap the Explore tab to learn more about what's included in this starter app.`}
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 3: Get a fresh start</ThemedText>
-        <ThemedText>
-          {`When you're ready, run `}
-          <ThemedText type="defaultSemiBold">npm run reset-project</ThemedText> to get a fresh{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> directory. This will move the current{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> to{' '}
-          <ThemedText type="defaultSemiBold">app-example</ThemedText>.
-        </ThemedText>
-      </ThemedView>
-    </ParallaxScrollView>
+  const addToCart = (food: any) => {
+    setCart([...cart, { ...food, qty: 1 }]);
+  };
+
+  const categories = [
+    { id: 1, title: "PIZZA", iconSource: require("../../assets/images/Group 33652.png") },
+    { id: 2, title: "BURGER", iconSource: require("../../assets/images/Group 33654.png") },
+    { id: 3, title: "DRINK", iconSource: require("../../assets/images/Group 33653.png") },
+    { id: 4, title: "RICE", iconSource: require("../../assets/images/Group 33655.png") },
+  ];
+
+  return (
+    // Bọc SafeAreaView ngoài cùng để xử lý tai thỏ
+    <SafeAreaView style={styles.safeArea}>
+      <ScrollView
+        style={styles.container}
+        contentContainerStyle={styles.contentContainer}
+        showsVerticalScrollIndicator={false}
+      >
+        <Header />
+
+        <View style={styles.searchSection}>
+          <SearchBar />
+        </View>
+
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          style={styles.categoryScroll}
+          contentContainerStyle={styles.categoryContent}
+        >
+          {categories.map((category) => (
+            <CategoryCard
+              key={category.id}
+              title={category.title}
+              iconSource={category.iconSource}
+              backgroundSource={selectedCategoryId === category.id ? require("../../assets/images/Rectangle 22.png") : undefined}
+              selected={selectedCategoryId === category.id}
+              onPress={() => setSelectedCategoryId(category.id)}
+            />
+          ))}
+        </ScrollView>
+
+        <View style={styles.bannerSection}>
+          <BurgerBanner />
+        </View>
+
+        <View style={styles.bannerDotsContainer}>
+          {[1, 2, 3].map((dot) => (
+            <View
+              key={dot}
+              style={dot === 3 ? styles.bannerDotActive : styles.bannerDot}
+            />
+          ))}
+        </View>
+
+        <View style={styles.popularHeader}>
+          <Text style={styles.popularTitle}>Popular Items</Text>
+          <Text style={styles.viewAllText}>View All</Text>
+        </View>
+
+        <View style={styles.popularImageWrapper}>
+          <Image
+            source={require("../../assets/images/Group 33661.png")}
+            style={styles.popularImageFull}
+          />
+        </View>
+
+      </ScrollView>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
-  titleContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
+  // Thêm style cho SafeAreaView để xử lý StatusBar trên Android
+  safeArea: {
+    flex: 1,
+    backgroundColor: "#fff",
+    paddingTop: Platform.OS === "android" ? StatusBar.currentHeight : 0
   },
-  stepContainer: {
-    gap: 8,
-    marginBottom: 8,
+  container: {
+    flex: 1,
+    backgroundColor: "#fff"
   },
-  reactLogo: {
-    height: 178,
-    width: 290,
-    bottom: 0,
-    left: 0,
-    position: 'absolute',
+  contentContainer: {
+    padding: 20,
+    paddingBottom: 40,
   },
+  searchSection: {
+    marginTop: 24,
+  },
+  categoryScroll: {
+    marginTop: 24,
+  },
+  categoryContent: {
+    alignItems: "center",
+    gap: 15,
+    paddingRight: 20,
+  },
+  bannerSection: {
+    marginTop: 24,
+  },
+  bannerDotsContainer: {
+    flexDirection: "row",
+    justifyContent: "center",
+    alignItems: "center",
+    marginTop: 16,
+  },
+  bannerDot: {
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    backgroundColor: "#E0E0E0",
+    marginHorizontal: 5
+  },
+  bannerDotActive: {
+    width: 20,
+    height: 8,
+    borderRadius: 4,
+    backgroundColor: "#3E5CFF",
+    marginHorizontal: 5
+  },
+  popularHeader: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginTop: 32,
+    marginBottom: 16,
+  },
+  popularTitle: {
+    fontSize: 18,
+    fontWeight: "bold",
+    color: "#1d1d1d"
+  },
+  viewAllText: {
+    fontSize: 14,
+    fontWeight: "600",
+    color: "#3E5CFF",
+  },
+  popularImageWrapper: {
+    width: "100%",
+    borderRadius: 16,
+    overflow: "hidden",
+  },
+  popularImageFull: {
+    width: "100%",
+    height: 180,
+    resizeMode: "cover"
+  }
 });
