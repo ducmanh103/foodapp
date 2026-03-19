@@ -1,4 +1,4 @@
-import { Image, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { Image, ImageBackground, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 
 type CategoryCardProps = {
     title: string;
@@ -9,13 +9,28 @@ type CategoryCardProps = {
 };
 
 export default function CategoryCard({ title, iconSource, backgroundSource, selected, onPress }: CategoryCardProps) {
+    const renderContent = () => (
+        <>
+            {iconSource ? <Image source={iconSource} style={[styles.icon, selected ? styles.iconSelected : styles.iconDefault]} /> : <Text style={[styles.defaultIcon, selected ? styles.iconSelected : {}]}>🍔</Text>}
+            <Text style={[styles.title, selected ? styles.titleSelected : styles.titleDefault]}>{title}</Text>
+        </>
+    );
+
     return (
         <TouchableOpacity onPress={onPress} activeOpacity={0.8}>
-            <View style={[styles.card, selected ? styles.cardSelected : styles.cardDefault]}>
-                {selected && backgroundSource ? <Image source={backgroundSource} style={styles.background} /> : null}
-                {iconSource ? <Image source={iconSource} style={[styles.icon, selected ? styles.iconSelected : styles.iconDefault]} /> : <Text style={[styles.defaultIcon, selected && styles.iconSelected]}>🍔</Text>}
-                <Text style={[styles.title, selected ? styles.titleSelected : styles.titleDefault]}>{title}</Text>
-            </View>
+            {selected && backgroundSource ? (
+                <ImageBackground 
+                    source={backgroundSource} 
+                    style={[styles.card, styles.cardSelected]} 
+                    imageStyle={styles.backgroundImage}
+                >
+                    {renderContent()}
+                </ImageBackground>
+            ) : (
+                <View style={[styles.card, styles.cardDefault]}>
+                    {renderContent()}
+                </View>
+            )}
         </TouchableOpacity>
     );
 }
@@ -27,8 +42,10 @@ const styles = StyleSheet.create({
         justifyContent: "center",
         alignItems: "center",
         borderRadius: 14,
-        overflow: "hidden",
         marginRight: 8,
+    },
+    backgroundImage: {
+        borderRadius: 14,
     },
     cardDefault: {
         backgroundColor: "#f6f7fb",
@@ -38,12 +55,6 @@ const styles = StyleSheet.create({
     cardSelected: {
         backgroundColor: "#0cd187"
     },
-    background: {
-        position: "absolute",
-        width: "100%",
-        height: "100%",
-        resizeMode: "contain"
-    },
     icon: {
         width: 34,
         height: 34,
@@ -51,10 +62,10 @@ const styles = StyleSheet.create({
         resizeMode: "contain"
     },
     iconDefault: {
-        tintColor: "#1d1f25"
+        // removed tintColor to keep original image colors
     },
     iconSelected: {
-        tintColor: "#ffffff"
+        // removed tintColor to keep original image colors
     },
     defaultIcon: {
         fontSize: 24,
@@ -62,7 +73,8 @@ const styles = StyleSheet.create({
     },
     title: {
         fontSize: 11,
-        fontWeight: "700"
+        fontWeight: "700",
+        zIndex: 1
     },
     titleDefault: {
         color: "#1d1f25"

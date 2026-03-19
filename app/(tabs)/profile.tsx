@@ -1,30 +1,77 @@
+import { useAuth } from "@/context/AuthContext";
+import { Feather } from "@expo/vector-icons"; 
 import React, { useState } from "react";
-import { Image, Pressable, ScrollView, StyleSheet, Switch, Text, View } from "react-native";
-import { Feather } from "@expo/vector-icons"; // Cần cài đặt @expo/vector-icons nếu bạn chưa có
+import { Image, Pressable, StyleSheet, Switch, Text, View } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function Profile() {
     const [dark, setDark] = useState(false);
+    const { user, logout } = useAuth(); // get user from AuthContext
 
     return (
-        <View style={styles.container}>
-            {/* Khung nền màu vàng nhạt có viền xanh phía trên */}
-            <View style={styles.headerBackground} />
-
-            <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
-
-                {/* Thanh điều hướng Header */}
-                <View style={styles.headerRow}>
-                    <Feather name="arrow-left" size={24} color="#000" />
-                    <Text style={styles.headerTitle}>Profile</Text>
-                    <View style={{ width: 24 }} /> {/* View rỗng để cân bằng với icon back */}
+        <SafeAreaView style={styles.safeArea} edges={['top']}>
+            <View style={styles.container}>
+                
+                {/* TOP YELLOW BLOCK */}
+                <View style={styles.topBlock}>
+                    <View style={styles.headerRow}>
+                        <Feather name="arrow-left" size={24} color="#1d1d1d" />
+                        <Text style={styles.headerTitle}>Profile</Text>
+                        <View style={{ width: 24 }} />
+                    </View>
                 </View>
 
-                {/* Khu vực Avatar với các vòng tròn đồng tâm */}
+                {/* BOTTOM YELLOW BLOCK */}
+                <View style={styles.bottomBlock}>
+                    
+                    {/* User Info */}
+                    <View style={styles.userInfo}>
+                        <Text style={styles.name}>{user?.email ? user.email.split('@')[0] : ""}</Text>
+                        <Text style={styles.email}>{user?.email}</Text>
+                    </View>
+
+                    {/* Menu */}
+                    <View style={styles.menuContainer}>
+                        <MenuItem icon="home" text="Home" />
+                        <MenuItem icon="credit-card" text="My Card" />
+
+                        {/* Dark Mood Switch */}
+                        <View style={styles.menuItem}>
+                            <View style={styles.menuLeft}>
+                                <Feather name="moon" size={20} color="#333" />
+                                <Text style={styles.menuText}>Dark Mood</Text>
+                            </View>
+                            <Switch
+                                value={dark}
+                                onValueChange={setDark}
+                                trackColor={{ false: "#d3d3d3", true: "#333" }}
+                                thumbColor={"#fff"}
+                            />
+                        </View>
+
+                        <MenuItem icon="map-pin" text="Truck Your Order" />
+                        <MenuItem icon="settings" text="Settings" />
+                        <MenuItem icon="help-circle" text="Help Center" />
+                    </View>
+
+                    {/* Nút Log Out */}
+                    <View style={styles.logoutWrapper}>
+                        <Pressable style={styles.logoutButton} onPress={() => {
+                            logout();
+                        }}>
+                            <Text style={styles.logoutText}>Log Out</Text>
+                            <Feather name="log-out" size={20} color="white" style={styles.logoutIcon} />
+                        </Pressable>
+                    </View>
+
+                </View>
+
+                {/* KHU VỰC AVATAR (Nằm giữa rãnh trắng) */}
                 <View style={styles.avatarSection}>
                     <View style={styles.outerRing}>
                         <View style={styles.innerRing}>
                             <Image
-                                source={{ uri: "https://randomuser.me/api/portraits/men/32.jpg" }} // Thay link ảnh của bạn vào đây
+                                source={require("../../assets/images/Group 33672.png")}
                                 style={styles.avatarImage}
                             />
                             {/* Nút Edit */}
@@ -35,47 +82,13 @@ export default function Profile() {
                     </View>
                 </View>
 
-                {/* Thông tin người dùng */}
-                <Text style={styles.name}>Rakibul Hasan</Text>
-                <Text style={styles.email}>rakibhbrand@gmail.com</Text>
-
-                {/* Danh sách Menu */}
-                <View style={styles.menuContainer}>
-                    <MenuItem icon="home" text="Home" />
-                    <MenuItem icon="credit-card" text="My Card" />
-
-                    {/* Item có Switch cho Dark Mood */}
-                    <View style={styles.menuItem}>
-                        <View style={styles.menuLeft}>
-                            <Feather name="moon" size={20} color="#333" />
-                            <Text style={styles.menuText}>Dark Mood</Text>
-                        </View>
-                        <Switch
-                            value={dark}
-                            onValueChange={setDark}
-                            trackColor={{ false: "#d3d3d3", true: "#333" }}
-                            thumbColor={"#fff"}
-                        />
-                    </View>
-
-                    <MenuItem icon="map-pin" text="Truck Your Order" />
-                    <MenuItem icon="settings" text="Settings" />
-                    <MenuItem icon="help-circle" text="Help Center" />
-                </View>
-
-                {/* Nút Log Out */}
-                <Pressable style={styles.logoutButton} onPress={() => alert("Logout")}>
-                    <Text style={styles.logoutText}>Log Out</Text>
-                    <Feather name="log-out" size={20} color="white" style={styles.logoutIcon} />
-                </Pressable>
-
-            </ScrollView>
-        </View>
+            </View>
+        </SafeAreaView>
     );
 }
 
-// Component phụ cho các Menu Item để code gọn hơn
-const MenuItem = ({ icon, text }) => (
+// Component phụ cho Menu Item
+const MenuItem = ({ icon, text }: { icon: any, text: string }) => (
     <Pressable style={styles.menuItem}>
         <View style={styles.menuLeft}>
             <Feather name={icon} size={20} color="#333" />
@@ -86,73 +99,79 @@ const MenuItem = ({ icon, text }) => (
 );
 
 const styles = StyleSheet.create({
+    safeArea: {
+        flex: 1,
+        backgroundColor: "#FFFEF2",
+    },
     container: {
         flex: 1,
-        backgroundColor: "#FFFEF2", // Màu nền chủ đạo hơi ngả vàng nhạt giống ảnh
+        backgroundColor: "#FFFFFF", // Màu rãnh trắng phân tách
     },
-    headerBackground: {
-        position: "absolute",
-        top: 0,
-        left: 0,
-        right: 0,
-        height: 190,
-        backgroundColor: "#FDFBE3", // Màu vàng sáng hơn cho header
+    topBlock: {
+        height: 130,
+        backgroundColor: "#FFFEF2", // Màu nền chủ đạo ngả vàng
         borderBottomLeftRadius: 40,
         borderBottomRightRadius: 40,
-        borderWidth: 2,
-        borderColor: "#2EB2FF", // Viền màu xanh dương
-        borderTopWidth: 0, // Không có viền ở trên cùng
     },
-    scrollContent: {
-        paddingTop: 50, // Khoảng cách cho thanh trạng thái
+    bottomBlock: {
+        flex: 1,
+        backgroundColor: "#FFFEF2",
+        marginTop: 50, // Tạo rãnh trắng
+        borderTopLeftRadius: 40,
+        borderTopRightRadius: 40,
+        paddingTop: 65,
         paddingHorizontal: 20,
-        paddingBottom: 40,
+        paddingBottom: 20,
     },
     headerRow: {
         flexDirection: "row",
         alignItems: "center",
         justifyContent: "space-between",
-        marginBottom: 30,
+        paddingHorizontal: 20,
+        marginTop: 10,
     },
     headerTitle: {
         fontSize: 18,
         fontWeight: "bold",
-        color: "#000",
+        color: "#1d1d1d",
     },
     avatarSection: {
+        position: "absolute",
+        top: 85, // Căn giữa avatar ở khoảng trắng 50px (Y=155)
+        alignSelf: "center",
         alignItems: "center",
         justifyContent: "center",
-        marginBottom: 15,
+        zIndex: 10,
     },
     outerRing: {
         width: 140,
         height: 140,
         borderRadius: 70,
         borderWidth: 1,
-        borderColor: "#ccc",
+        borderColor: "#E5E5E5",
         alignItems: "center",
         justifyContent: "center",
     },
     innerRing: {
         width: 115,
         height: 115,
-        borderRadius: 60,
+        borderRadius: 57.5,
         borderWidth: 1,
-        borderColor: "#ccc",
+        borderColor: "#E5E5E5",
         alignItems: "center",
         justifyContent: "center",
-        position: "relative", // Để đặt nút edit tuyệt đối so với vòng này
+        position: "relative",
     },
     avatarImage: {
         width: 95,
         height: 95,
-        borderRadius: 50,
+        borderRadius: 47.5,
     },
     editIconContainer: {
         position: "absolute",
         bottom: 0,
         right: 0,
-        backgroundColor: "#4F46E5", // Màu xanh tím
+        backgroundColor: "#5B4FFF", // Màu xanh tím theo design
         width: 28,
         height: 28,
         borderRadius: 14,
@@ -161,10 +180,13 @@ const styles = StyleSheet.create({
         borderWidth: 2,
         borderColor: "#fff",
     },
+    userInfo: {
+        alignItems: "center",
+        marginBottom: 10,
+    },
     name: {
         fontSize: 22,
         fontWeight: "bold",
-        textAlign: "center",
         color: "#1d1d1d",
         marginTop: 5,
     },
@@ -173,16 +195,18 @@ const styles = StyleSheet.create({
         color: "#777",
         textAlign: "center",
         marginTop: 4,
-        marginBottom: 30,
     },
     menuContainer: {
-        marginTop: 10,
+        flex: 1,
+        justifyContent: "space-evenly",
+        marginTop: 5,
+        marginBottom: 10,
     },
     menuItem: {
         flexDirection: "row",
         alignItems: "center",
         justifyContent: "space-between",
-        paddingVertical: 18,
+        paddingVertical: 14,
     },
     menuLeft: {
         flexDirection: "row",
@@ -194,6 +218,10 @@ const styles = StyleSheet.create({
         marginLeft: 15,
         fontWeight: "500",
     },
+    logoutWrapper: {
+        marginTop: "auto",
+        marginBottom: 10,
+    },
     logoutButton: {
         flexDirection: "row",
         alignItems: "center",
@@ -201,7 +229,6 @@ const styles = StyleSheet.create({
         backgroundColor: "#5B4FFF",
         paddingVertical: 16,
         borderRadius: 16,
-        marginTop: 40,
     },
     logoutText: {
         color: "white",

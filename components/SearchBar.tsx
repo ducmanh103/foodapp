@@ -2,7 +2,7 @@ import { Ionicons } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
 import { StyleSheet, TextInput } from "react-native";
 
-export default function SearchBar() {
+export default function SearchBar({ value, onChangeText }: { value?: string, onChangeText?: (text: string) => void }) {
 
     return (
 
@@ -23,6 +23,8 @@ export default function SearchBar() {
                 placeholder="Search your food"
                 placeholderTextColor="#ddd"
                 style={styles.input}
+                value={value}
+                onChangeText={onChangeText}
             />
 
             {/* FILTER ICON */}
